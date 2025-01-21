@@ -1,12 +1,16 @@
 package org.example.foroalura.Entitys;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Table(name = "User_entity")
-public class UserEntity {
+public class UserEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,14 +31,14 @@ public class UserEntity {
     public UserEntity() {
     }
 
-    public UserEntity(Integer id, String name, String pass, String email, PerfilEntity perfil, List<AnswerEntity> answer, List<TopicsEntity> topics) {
+    public UserEntity(Integer id, String name, String email, PerfilEntity perfilEntity, String pass, List<AnswerEntity> answerEntity, List<TopicsEntity> topicsEntity) {
         this.id = id;
         this.name = name;
-        this.pass = pass;
         this.email = email;
-        this.perfilEntity = perfil;
-        this.answerEntity = answer;
-        this.topicsEntity = topics;
+        this.perfilEntity = perfilEntity;
+        this.pass = pass;
+        this.answerEntity = answerEntity;
+        this.topicsEntity = topicsEntity;
     }
 
     public Integer getId() {
@@ -53,20 +57,20 @@ public class UserEntity {
         this.name = name;
     }
 
-    public String getPass() {
-        return pass;
-    }
-
-    public void setPass(String pass) {
-        this.pass = pass;
-    }
-
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPass() {
+        return pass;
+    }
+
+    public void setPass(String pass) {
+        this.pass = pass;
     }
 
     public PerfilEntity getPerfilEntity() {
@@ -91,5 +95,40 @@ public class UserEntity {
 
     public void setTopicsEntity(List<TopicsEntity> topicsEntity) {
         this.topicsEntity = topicsEntity;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    @Override
+    public String getPassword() {
+        return pass;
+    }
+
+    @Override
+    public String getUsername() {
+        return name;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
     }
 }

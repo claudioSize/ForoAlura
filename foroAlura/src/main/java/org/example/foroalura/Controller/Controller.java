@@ -3,10 +3,14 @@ package org.example.foroalura.Controller;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.Valid;
 import org.example.foroalura.DTOS.*;
+import org.example.foroalura.Entitys.UserEntity;
 import org.example.foroalura.Service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +38,12 @@ public class Controller {
     private GetAnswerList getAnswerList;
     @Autowired
     private UpdateTopic updateTopic;
-
+    @Autowired
+    private AuthenticationManager manager;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private TokenService tokenService;
     @GetMapping("/topico/lista/")
     public ResponseEntity<List<DTOTopicList>> getTopicsList(){
         return ResponseEntity.ok(sGetTopics.getTopics());
@@ -77,6 +86,15 @@ public class Controller {
     public ResponseEntity<HttpStatus> upgradeTop(@Valid @PathVariable Integer id, @RequestBody DTOUpdateTopic dto){
         updateTopic.updateTopicsM(id,dto);
         return ResponseEntity.ok(HttpStatus.OK);
+    }
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody DTOLogin dto) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(dto.getUserName(), dto.getPassword())
+        );
+
+        String token = tokenService.generateToken(dto.getUserName());
+        return ResponseEntity.ok(token);
     }
 
 }
